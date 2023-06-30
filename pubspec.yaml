@@ -1,0 +1,28 @@
+name: regexorobsfucation
+description: A little game that shows you snippets of regex and obfuscation.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  bloc: ^8.1.1
+  flutter_bloc: ^8.1.2
+  url_launcher: ^6.1.11
+  cupertino_icons: ^1.0.2
+  magic_text: ^0.0.3
+  firebase_core: ^2.14.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+flutter:
+  uses-material-design: true
