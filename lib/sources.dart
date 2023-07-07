@@ -183,7 +183,7 @@ List<Map<String, Object?>> regexList = [
     'code': [
       '(?:\n   (?:ByVal|ByRef)\n   [ \\t]+(?:_[ \\t]*(?:\'.*?)?\\n[ \\t]+)*\n)?',
       '(\\w[\\w\\d_]*|_[\\w\\d_]+) (?# Argument 5 name)',
-      '                                             )?\n                                      )?\n                               )?\n                        )?\n                )?\n        )?\n)?',
+      // '                                             )?\n                                      )?\n                               )?\n                        )?\n                )?\n        )?\n)?',
     ],
     'source':
         'https://www.reddit.com/r/programminghorror/comments/vfwju/when_problems_are_tough_use_regular_expressions/',
