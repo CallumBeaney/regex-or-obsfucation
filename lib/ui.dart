@@ -46,7 +46,7 @@ class QuizBox extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: SizedBox(
         width: 460,
-        height: 130,
+        height: quizText.length >= 170 ? 170 : 130,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
@@ -56,46 +56,53 @@ class QuizBox extends StatelessWidget {
             ),
           ),
           child: LayoutBuilder(builder: (context, constraints) {
-            if (quizText.length >= 60) {
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+            if (quizText.length >= 80) {
+              final ScrollController scrollController = ScrollController(); // scrollController
+              return Scrollbar(
+                controller: scrollController, // ↓ you need it assigned in both P + C widgets
+                thumbVisibility: true,
+                radius: const Radius.circular(0.2),
+                child: SingleChildScrollView(
+                  controller: scrollController, // ↑ and here
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
 
-                  /// Thank u MagicText for enabling proper & working text wrapping imagine if Flutter 3 had something like this which it already should do after 5 sodding years
-                  child: MagicText(
-                    quizText,
-                    breakWordCharacter: ' ',
-                    smartSizeMode: true,
-                    maxFontSize: 24,
-                    minFontSize: 20,
-                    asyncMode: false,
-                    overflow: TextOverflow.clip,
-                    textAlign: TextAlign.justify,
-                    textStyle: TextStyle(
-                        fontSize: 20, //It is mandatory that the textStyle has a fontsize.
-                        fontWeight: FontWeight.normal,
-                        color: Colors.blue[500]),
+                    /// Thank u MagicText for enabling proper & working text wrapping imagine if Flutter 3 had something like this which it already should do after 5 sodding years
+                    child: MagicText(
+                      quizText,
+                      breakWordCharacter: ' ',
+                      smartSizeMode: true,
+                      maxFontSize: 24,
+                      minFontSize: 20,
+                      asyncMode: false,
+                      overflow: TextOverflow.clip,
+                      textAlign: TextAlign.justify,
+                      textStyle: TextStyle(
+                          fontSize: 20, //It is mandatory that the textStyle has a fontsize.
+                          fontWeight: FontWeight.normal,
+                          color: Colors.blue[500]),
+                    ),
+
+                    // Text(
+                    //   quizText,
+                    //   style: TextStyle(fontSize: 20, color: Colors.blue[500]),
+                    //   softWrap: true,
+                    // ),
                   ),
-
-                  // Text(
-                  //   quizText,
-                  //   style: TextStyle(fontSize: 20, color: Colors.blue[500]),
-                  //   softWrap: true,
-                  // ),
+                ),
+              );
+            } else {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    quizText,
+                    style: TextStyle(fontSize: 25, color: Colors.blue[500]),
+                    softWrap: true,
+                  ),
                 ),
               );
             }
-
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  quizText,
-                  style: TextStyle(fontSize: 25, color: Colors.blue[500]),
-                  softWrap: true,
-                ),
-              ),
-            );
           }),
         ),
       ),
