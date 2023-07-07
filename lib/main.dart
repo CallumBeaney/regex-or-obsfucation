@@ -8,6 +8,7 @@ import 'package:regexorobsfucation/ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // TO RUN LOCALLY: flutter run -d chrome
+// flutter build web --web-renderer html
 
 // Project Console: https://console.firebase.google.com/project/regex-or-obfuscation/overview
 // Hosting URL: https://regex-or-obfuscation.web.app
@@ -29,12 +30,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'RegEx or Obfuscation?',
-      // theme: ThemeData(
-      //   // textTheme: const TextTheme(
-      //   //     bodyLarge: TextStyle(fontFamily: 'Arial'), bodyMedium: TextStyle(fontFamily: 'Arial')),
-      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      //   useMaterial3: true,
-      // ),
       home: MyHomePage(title: 'REGEX OR OBFUSCATION?'),
     );
   }

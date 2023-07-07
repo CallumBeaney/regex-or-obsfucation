@@ -24,6 +24,8 @@ class EndGameView extends StatelessWidget {
               children: [
                 /// TODO: fix cubit so this ↓↓↓ isn't necessary
                 if (state.isGameEnded == true) ...[
+                  /// The above if() is included to deal with a state problem whereby the                         Navigator.pop(context); below occurs too slowly, resulting in a .5s preview of the following state in this View's widget structure after .getNewQuestion(); is called. This essentially breaks the game, but I am unable to identify the source of the problem in the cubit.
+
                   Text(
                     state.winState == 'win' ? 'CORRECT' : 'WRONG!',
                     style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
@@ -82,7 +84,7 @@ class EndGameView extends StatelessWidget {
                       },
                       child: const Text(
                         'Play Again',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
                       ),
                     ),
                   ),

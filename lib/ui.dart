@@ -42,59 +42,62 @@ class QuizBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 460,
-      height: 120,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
-            width: 2.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: SizedBox(
+        width: 460,
+        height: 130,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 2.0,
+            ),
           ),
-        ),
-        child: LayoutBuilder(builder: (context, constraints) {
-          if (quizText.length >= 60) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+          child: LayoutBuilder(builder: (context, constraints) {
+            if (quizText.length >= 60) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
 
-                /// Thank u MagicText for enabling proper & working text wrapping imagine if Flutter 3 had something like this which it already should do after 5 sodding years
-                child: MagicText(
-                  quizText,
-                  breakWordCharacter: ' ',
-                  smartSizeMode: true,
-                  maxFontSize: 20,
-                  minFontSize: 18,
-                  asyncMode: false,
-                  overflow: TextOverflow.clip,
-                  textAlign: TextAlign.justify,
-                  textStyle: TextStyle(
-                      fontSize: 20, //It is mandatory that the textStyle has a fontsize.
-                      fontWeight: FontWeight.normal,
-                      color: Colors.blue[500]),
+                  /// Thank u MagicText for enabling proper & working text wrapping imagine if Flutter 3 had something like this which it already should do after 5 sodding years
+                  child: MagicText(
+                    quizText,
+                    breakWordCharacter: ' ',
+                    smartSizeMode: true,
+                    maxFontSize: 24,
+                    minFontSize: 20,
+                    asyncMode: false,
+                    overflow: TextOverflow.clip,
+                    textAlign: TextAlign.justify,
+                    textStyle: TextStyle(
+                        fontSize: 20, //It is mandatory that the textStyle has a fontsize.
+                        fontWeight: FontWeight.normal,
+                        color: Colors.blue[500]),
+                  ),
+
+                  // Text(
+                  //   quizText,
+                  //   style: TextStyle(fontSize: 20, color: Colors.blue[500]),
+                  //   softWrap: true,
+                  // ),
                 ),
+              );
+            }
 
-                // Text(
-                //   quizText,
-                //   style: TextStyle(fontSize: 20, color: Colors.blue[500]),
-                //   softWrap: true,
-                // ),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  quizText,
+                  style: TextStyle(fontSize: 25, color: Colors.blue[500]),
+                  softWrap: true,
+                ),
               ),
             );
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Text(
-                quizText,
-                style: TextStyle(fontSize: 22, color: Colors.blue[500]),
-                softWrap: true,
-              ),
-            ),
-          );
-        }),
+          }),
+        ),
       ),
     );
   }
