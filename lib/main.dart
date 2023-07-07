@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       LinkyLad(
                         text: "View this on ",
                         name: "Github",
-                        link: "https://github.com/CallumBeaney",
+                        link: "https://github.com/CallumBeaney/regex-or-obsfucation",
                       ),
                       SizedBox(height: 5),
                     ],
