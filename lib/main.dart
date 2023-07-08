@@ -1,6 +1,6 @@
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:regexorobsfucation/firebase.dart';
 import 'package:flutter/material.dart';
-import 'package:regexorobsfucation/firebase.dart';
 import 'package:regexorobsfucation/game_cubit.dart';
 import 'package:regexorobsfucation/helpers.dart';
 import 'package:regexorobsfucation/end_game_view.dart';
