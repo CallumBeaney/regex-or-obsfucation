@@ -3,6 +3,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:regexorobsfucation/sources.dart';
 
+/*  This ↓ is what the gameState measures & pulls data from:
+
+    List<Map<String, Object?>> exampleList = [
+      {
+        'code': [
+          'example code 1',
+          'example code 2',
+        ],
+        'source': 'www.site.com',
+        'author': 'name name',
+        'authSite': 'www.site.com',
+      },
+    ]; 
+*/
 class GameState {
   final String? winState; // winState: null or '' = user hasn't guessed
   bool get isGameEnded => winState == null || winState == '' ? false : true;
@@ -75,8 +89,10 @@ class GameCubit extends Cubit<GameState> {
       // Get the number of code snippets in each object
       Object? codeObj = obj['code'];
       if (codeObj is List) {
+        // more than one string present
         totalRegexObjects += codeObj.length;
       } else if (codeObj is String) {
+        // if only one string in object, dumb interpreter decomposes it to string
         totalRegexObjects++;
       }
     }
