@@ -1,65 +1,39 @@
-import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:regexorobsfucation/sources.dart';
+import 'package:regexorobsfucation/code_snippets.dart';
 
-/*  This ↓ is what the gameState measures & pulls data from:
-
-    List<Map<String, Object?>> exampleList = [
-      {
-        'code': [
-          'example code 1',
-          'example code 2',
-        ],
-        'source': 'www.site.com',
-        'author': 'name name',
-        'authSite': 'www.site.com',
-      },
-    ]; 
-*/
 class GameState {
-  final String? winState; // winState: null or '' = user hasn't guessed
+  ///  WON'T be changed once a GameState has been initialised.
+  final List<Snippet> snippetsQueue;
+
+  /// WILL be changed each time copyWith is evoked.
+  final Snippet currentSnippet; // the specific code sample object snippet
+  final String? winState; // winState: null || '' == user hasn't guessed
   bool get isGameEnded => winState == null || winState == '' ? false : true;
-  // TODO: see below: "why must this be '' and not 'null'? it fails to copyWith properly if 'null'."
 
-  final Map<String, Object?> gamedata; // an Object containing code snippet(s) & info about them
-  final int codeSnippetType; // Regex (0) or Obfuscation (1)?
-  final int codeSnippetIndex; // the index of the code snippet in `gamedata` being used
-  final int totalNumberOfSnippets; // this is calculated at setup and never changed
-
-  /// indexSet arrays are stored as 3 ints
-  /// e.g.(0, 5, 1) where (0=regex, 5th data object in Regex object list, 1st code snippet in object)
-  final Set<List<int>> indexSet;
-
-  String get codeSnippet => (gamedata['code'] as List<String>)[codeSnippetIndex];
-  String? get source => gamedata['source'] == null ? null : gamedata['source'] as String;
-  String? get author => gamedata['author'] == null ? null : gamedata['author'] as String;
-  String? get site => gamedata['authSite'] == null ? null : gamedata['authSite'] as String;
+  /// build data from currentSnippet -- this will be rebuilt with each copyWith()
+  String get codeSnippetType => currentSnippet.type;
+  String get codeSnippet => currentSnippet.code.join(''); // .toString() puts [] around the string
+  String? get source => currentSnippet.source;
+  String? get author => currentSnippet.author;
+  String? get site => currentSnippet.authSite;
 
   const GameState({
-    required this.gamedata,
-    required this.codeSnippetType,
+    required this.snippetsQueue,
     required this.winState,
-    required this.indexSet,
-    required this.totalNumberOfSnippets,
-    required this.codeSnippetIndex,
+    required this.currentSnippet,
   });
 
   GameState copyWith({
-    Map<String, Object?>? gamedata,
-    int? codeSnippetType,
+    List<Snippet>? snippetsQueue,
+    Snippet? currentSnippet,
     String? winState,
-    Set<List<int>>? indexSet,
-    int? codeSnippetIndex,
     int? totalNumberOfSnippets,
   }) =>
       GameState(
-        gamedata: gamedata ?? this.gamedata,
-        codeSnippetType: codeSnippetType ?? this.codeSnippetType,
+        snippetsQueue: snippetsQueue ?? this.snippetsQueue,
+        currentSnippet: currentSnippet ?? this.currentSnippet,
         winState: winState ?? this.winState,
-        indexSet: indexSet ?? this.indexSet,
-        totalNumberOfSnippets: totalNumberOfSnippets ?? this.totalNumberOfSnippets,
-        codeSnippetIndex: codeSnippetIndex ?? this.codeSnippetIndex,
       );
 }
 
@@ -67,122 +41,48 @@ class GameCubit extends Cubit<GameState> {
   GameCubit() : super(_getInitialGameState());
 
   static GameState _getInitialGameState() {
-    /// Get either a Regex or an Obfuscation code snippet list
-    int typeIndex = Random().nextInt(2); // 0 (RegEx) or 1 (obfuscation)
-    List<Map<String, Object?>> snippetList = typeIndex == 0 ? regexList : obfuscationList;
+    /// Each snippet object in `snippetsList` contains multiple strings in its `code` parameter
+    /// For this reason, we need to create a separate class instance for each of them containing
+    ///   the shared parameters i.e. the snippet's author, source etc., and make it into a list.
+    List<Snippet> separatedSnippets = snippetsList.expand((snippet) {
+      return snippet.code.map((code) {
+        return Snippet(
+          type: snippet.type,
+          code: [code], // parameter `code:` is a List<String> ; assignee `code` is a String.
+          source: snippet.source,
+          author: snippet.author,
+          authSite: snippet.authSite,
+        );
+      });
+    }).toList();
 
-    /// Get a random sample data object from that list.
-    int codeObjectIndex = Random().nextInt(snippetList.length);
-    Map<String, Object?> gameData = snippetList.elementAt(codeObjectIndex);
-    List<String> codeSnippetList = gameData['code'] as List<String>;
-    int codeSnippetIndex = Random().nextInt(codeSnippetList.length);
+    separatedSnippets.shuffle();
 
-    /// this add method only works in the initial state builder
-    Set<List<int>> indexSet = {};
-    indexSet.add([typeIndex, codeObjectIndex, codeSnippetIndex]);
-
-    /// Calculate and store as a reference value the total number of displayable code snippets.
-    int totalObfuscationObjects = 0;
-    int totalRegexObjects = 0;
-
-    for (Map<String, Object?> obj in regexList) {
-      // Get the number of code snippets in each object
-      Object? codeObj = obj['code'];
-      if (codeObj is List) {
-        // more than one string present
-        totalRegexObjects += codeObj.length;
-      } else if (codeObj is String) {
-        // if only one string in object, dumb interpreter decomposes it to string
-        totalRegexObjects++;
-      }
-    }
-    for (Map<String, Object?> obj in obfuscationList) {
-      Object? codeObj = obj['code'];
-      if (codeObj is List) {
-        totalObfuscationObjects += codeObj.length;
-      } else if (codeObj is String) {
-        totalObfuscationObjects++;
-      }
-    }
-
-    int snippetsTotal = totalObfuscationObjects + totalRegexObjects;
-    // print('regex snippets: $totalRegexObjects');
-    // print('obfuscation snippets: $totalObfuscationObjects');
+    final Snippet firstEverSnippet = separatedSnippets.removeAt(0);
 
     return GameState(
       winState: null,
-      totalNumberOfSnippets: snippetsTotal,
-      codeSnippetType: typeIndex,
-      codeSnippetIndex: codeSnippetIndex,
-      gamedata: gameData,
-      indexSet: indexSet,
+      currentSnippet: firstEverSnippet,
+      snippetsQueue: separatedSnippets,
     );
   }
 
   void getNewQuestion() {
-    ///   This works much the same as _getInitialGameState() with the exception that it updates
-    /// rather than returns the state object, and  will search for valid code snippet indexes
-    /// until it finds one. If it doesn't it'll call _getInitialGameState() to reset the game.
-
-    int typeIndex;
-    int codeObjectIndex;
-    int codeSnippetIndex;
-    bool isNewIndex = false;
-
-    Map<String, Object?> gameData;
-    List<Map<String, Object?>> snippetList;
-
-    do {
-      typeIndex = Random().nextInt(2);
-      snippetList = typeIndex == 0 ? regexList : obfuscationList;
-
-      codeObjectIndex = Random().nextInt(snippetList.length);
-      gameData = snippetList.elementAt(codeObjectIndex);
-
-      codeSnippetIndex = Random().nextInt((gameData['code'] as List<String>).toList().length);
-
-      List<int> newIndex = [typeIndex, codeObjectIndex, codeSnippetIndex];
-      bool isNewIndex = !state.indexSet.any((element) => listEquals(element, newIndex));
-
-      /* 
-        N.B. The reason the below commented-out line doesn't work, is because lists are reference types in Dart. 
-        When you add a list to a set, the set checks for uniqueness based on the object's identity, not its content. Even if two lists have the same values, they are considered different if they are distinct objects in memory.
-        Because it must be a List<int> to allow for e.g. [1, 5, 5] it must not be a set, so dart:collection's listEquals compares for element-by-element equality based on content rather than identity.
-      */
-      /// isNewIndex = !state.indexSet.contains(newIndex); // if DOESN'T contain newIndex, is True
-
-      if (isNewIndex) {
-        Set<List<int>> indexSetToPass = state.indexSet;
-        indexSetToPass.add(newIndex);
-
-        emit(state.copyWith(
-          winState:
-              '', // TODO: why must this be '' and not 'null'? it fails to copyWith properly if 'null'.
-          codeSnippetType: typeIndex,
-          codeSnippetIndex: codeSnippetIndex,
-          gamedata: gameData,
-          indexSet: indexSetToPass,
-        ));
-
-        /// For debug
-        // print('NEW_______');
-        // print('new index: $newIndex');
-        // print('new state: ${state.indexSet}');
-
-        break;
-      } else {
-        // index already exists, try generating a new one
-        continue;
-      }
-    } while (!isNewIndex && state.indexSet.length < state.totalNumberOfSnippets);
-
-    if (state.indexSet.length >= state.totalNumberOfSnippets) {
-      /// If the user has gone through them all, for now, we're going to reset everything.
+    if (state.snippetsQueue.isEmpty) {
+      /// if the game's over just rebuild the list
       emit(_getInitialGameState());
+      return;
     }
+
+    final Snippet newSnippet = state.snippetsQueue.removeAt(0);
+
+    emit(state.copyWith(
+      winState: '', // TODO: why it fails to copyWith properly if 'null'?
+      currentSnippet: newSnippet,
+    ));
   }
 
-  void judgeGuess(int userGuess) {
+  void judgeGuess(String userGuess) {
     if (userGuess == state.codeSnippetType) {
       emit(state.copyWith(winState: 'win'));
     } else {
